@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevFest SDD Workshop Guide</title>
+<meta name="description" content="Setup, agenda, lab prompts and troubleshooting for the DevFest ATL 2026 spec-driven development workshop with Google ADK.">
+<meta property="og:title" content="DevFest SDD Workshop Guide">
+<meta property="og:description" content="Setup, agenda, lab prompts and troubleshooting for the DevFest ATL 2026 spec-driven development workshop.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&display=swap">
+<style>
+/* Layout concept: a long single page of white outlined cards on off-white, like the DevFest slide frames.
+   Folder-tab hero, scalloped band, numbered setup steps with OS and agent toggles, lab cards, FAQ accordions. */
+:root {
+  --paper: #F0F0F0;
+  --ink: #1E1E1E;
+  --white: #FFFFFF;
+  --blue: #4285F4;
+  --green: #34A853;
+  --red: #EA4335;
+  --yellow: #FBBC04;
+  --h-blue: #57CAFF;
+  --h-green: #5CDB6D;
+  --h-pink: #FF7DAF;
+  --h-yellow: #FFD427;
+  --p-blue: #C3ECF6;
+  --p-green: #CCF6C5;
+  --p-red: #F8D8D8;
+  --p-yellow: #FFE7A5;
+  --muted: #55595C;
+  --font-sans: 'Google Sans', 'Product Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --line: 2px solid var(--ink);
+  --r: 28px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 56px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--paper); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1120px; margin-inline: auto; }
+h1, h2, h3 { margin: 0; line-height: 1.08; text-wrap: balance; }
+h2 { font-size: clamp(2rem, 4.4vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+h3 { font-size: 1.3rem; font-weight: 700; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-weight: 400; }
+:not(pre) > code { font-size: 0.88em; background: var(--white); border: 1.5px solid var(--ink); border-radius: 8px; padding: 0.05em 0.4em; white-space: nowrap; }
+.eyebrow { font-family: var(--font-mono); font-weight: 300; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; padding-block: 12px; background: var(--paper); }
+.top .wrap { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700; font-size: 1.25rem; }
+.brand .br { color: var(--yellow); font-size: 1.7rem; line-height: 1; }
+.brand small { font-family: var(--font-mono); font-weight: 300; font-size: 0.72rem; border: 1.5px solid var(--ink); border-radius: 99px; padding: 1px 9px; background: var(--white); }
+.nav { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.nav a { text-decoration: none; font-weight: 500; font-size: 0.95rem; padding: 6px 12px; border-radius: 99px; border: 2px solid transparent; }
+.nav a:hover { border-color: var(--ink); background: var(--white); }
+.nav a.cta { background: var(--ink); color: var(--paper); }
+.nav a.cta:hover { background: var(--blue); border-color: var(--ink); color: var(--white); }
+@media (max-width: 760px) { .nav a:not(.cta) { display: none; } }
+
+/* hero */
+.hero { padding-block: 28px 8px; }
+.tab { display: inline-flex; align-items: center; gap: 10px; background: var(--white); border: var(--line); border-bottom: none; border-radius: 22px 22px 0 0; padding: 10px 22px 12px; margin-left: 28px; margin-bottom: -2px; position: relative; z-index: 1; font-weight: 700; font-size: 1.4rem; }
+.tab .br { color: var(--yellow); font-size: 2rem; line-height: 0.9; }
+.tab small { font-family: var(--font-mono); font-weight: 300; font-size: 0.72rem; border: 1.5px solid var(--ink); border-radius: 99px; padding: 1px 10px; }
+.card { background: var(--white); border: var(--line); border-radius: var(--r); }
+.hero-card { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 24px; padding: clamp(24px, 4vw, 48px); align-items: center; }
+.hero-card h1 { font-size: clamp(2.6rem, 7vw, 5rem); font-weight: 700; letter-spacing: -0.03em; }
+.hero-card h1 span { display: inline-block; background: var(--h-yellow); padding: 0 0.15em; border-radius: 14px; transform: rotate(-1.5deg); }
+.lede { font-size: 1.2rem; max-width: 34ch; margin-top: 18px; }
+.btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 700; font-size: 1.02rem; padding: 12px 22px; border: var(--line); border-radius: 99px; background: var(--white); transition: transform .15s, background .15s; }
+.btn:hover { transform: translateY(-2px); background: var(--p-blue); }
+.btn.primary { background: var(--blue); color: var(--white); }
+.btn.primary:hover { background: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.chip { font-family: var(--font-mono); font-weight: 300; font-size: 0.85rem; border: 1.5px solid var(--ink); border-radius: 99px; padding: 3px 12px; }
+.chip:nth-child(1) { background: var(--p-blue); } .chip:nth-child(2) { background: var(--p-green); } .chip:nth-child(3) { background: var(--p-yellow); } .chip:nth-child(4) { background: var(--p-red); }
+.art { background: var(--p-blue); border: var(--line); border-radius: 22px; padding: 10px; }
+.art svg { display: block; width: 100%; height: auto; }
+@media (max-width: 860px) { .hero-card { grid-template-columns: 1fr; } .tab { margin-left: 16px; } }
+
+/* sections */
+section { padding-block: 72px 0; scroll-margin-top: 70px; }
+.head { display: grid; gap: 10px; margin-bottom: 30px; max-width: 760px; }
+.head p { font-size: 1.1rem; color: var(--muted); }
+.dots { display: flex; gap: 8px; margin-bottom: 4px; }
+.dots i { width: 18px; height: 18px; border-radius: 50%; border: var(--line); display: block; }
+.dots i:nth-child(1) { background: var(--blue); } .dots i:nth-child(2) { background: var(--red); } .dots i:nth-child(3) { background: var(--yellow); } .dots i:nth-child(4) { background: var(--green); }
+
+/* glance */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.trio .card { padding: 26px; display: grid; gap: 10px; align-content: start; }
+.trio .card:nth-child(1) { background: var(--p-blue); } .trio .card:nth-child(2) { background: var(--p-yellow); } .trio .card:nth-child(3) { background: var(--p-green); }
+.trio .card .eyebrow { font-size: 0.8rem; }
+.trio ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+@media (max-width: 860px) { .trio { grid-template-columns: 1fr; } }
+.arch { margin-top: 20px; padding: 28px; display: grid; gap: 14px; justify-items: center; }
+.arch .router { background: var(--p-blue); border: var(--line); border-radius: 18px; padding: 12px 22px; text-align: center; width: min(520px, 100%); }
+.arch .router b { font-size: 1.25rem; display: block; }
+.arch .lines { width: min(640px, 92%); height: 28px; }
+.arch .row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; width: 100%; max-width: 760px; }
+.pill { border: var(--line); border-radius: 99px; padding: 10px 14px; text-align: center; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.3; overflow-wrap: anywhere; }
+.pill b { display: block; font-weight: 400; font-size: 1rem; }
+.pill small { font-weight: 300; font-size: 0.78rem; }
+.pill.y { background: var(--h-yellow); } .pill.p { background: var(--h-pink); } .pill.g { background: var(--h-green); }
+.arch .data { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.pill.k { background: var(--ink); color: var(--paper); padding-inline: 22px; }
+@media (max-width: 640px) { .arch .row { grid-template-columns: 1fr; } .arch .lines { display: none; } }
+
+/* toggles + setup */
+.toolbar { display: flex; flex-wrap: wrap; gap: 14px 28px; margin-bottom: 22px; align-items: center; }
+.seg { display: inline-flex; border: var(--line); border-radius: 99px; background: var(--white); padding: 4px; gap: 2px; }
+.seg legend { position: absolute; width: 1px; height: 1px; overflow: hidden; }
+.seg button { font: inherit; font-weight: 500; font-size: 0.95rem; cursor: pointer; border: none; background: transparent; color: var(--ink); padding: 7px 16px; border-radius: 99px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.tool-label { font-family: var(--font-mono); font-weight: 300; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-right: 8px; }
+body[data-os="mac"] .os-win, body[data-os="win"] .os-mac { display: none !important; }
+body[data-agent="agy"] .ag-claude, body[data-agent="claude"] .ag-agy { display: none !important; }
+
+.steps { display: grid; gap: 22px; }
+.step { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 22px; padding: 28px; }
+.num { width: 64px; height: 64px; border-radius: 50%; border: var(--line); display: grid; place-items: center; font-family: var(--font-mono); font-size: 1.7rem; font-weight: 300; }
+.step:nth-child(1) .num { background: var(--h-blue); } .step:nth-child(2) .num { background: var(--h-green); } .step:nth-child(3) .num { background: var(--h-pink); } .step:nth-child(4) .num { background: var(--h-yellow); }
+.step .body { display: grid; gap: 14px; min-width: 0; }
+.step ol, .step ul { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+.time { font-family: var(--font-mono); font-weight: 300; font-size: 0.85rem; border: 1.5px solid var(--ink); border-radius: 99px; padding: 2px 10px; margin-left: 8px; vertical-align: middle; background: var(--paper); }
+@media (max-width: 640px) { .step { grid-template-columns: 1fr; padding: 22px; } .num { width: 52px; height: 52px; font-size: 1.4rem; } }
+
+.code { position: relative; background: var(--ink); color: var(--paper); border-radius: 18px; padding: 18px 20px 16px; min-width: 0; }
+.code .tag { display: block; font-family: var(--font-mono); font-weight: 300; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--yellow); margin-bottom: 8px; padding-right: 84px; }
+.code pre { margin: 0; overflow-x: auto; font-family: var(--font-mono); font-weight: 300; font-size: 0.88rem; line-height: 1.7; white-space: pre; }
+.code .cp { position: absolute; top: 12px; right: 12px; font: inherit; font-size: 0.8rem; font-weight: 500; cursor: pointer; background: var(--paper); color: var(--ink); border: none; border-radius: 99px; padding: 4px 12px; }
+.code .cp:hover { background: var(--h-yellow); }
+.code.wrapme pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.note { border: var(--line); border-radius: 18px; padding: 14px 18px; background: var(--p-yellow); font-size: 0.98rem; }
+.note.blue { background: var(--p-blue); } .note.green { background: var(--p-green); } .note.red { background: var(--p-red); }
+.note b:first-child { margin-right: 4px; }
+
+/* agenda */
+.scallop { height: 26px; background: radial-gradient(circle at 18px 0, var(--paper) 0 13px, transparent 13.5px) 0 0 / 36px 26px repeat-x; }
+.agenda { padding: 0; overflow: hidden; }
+.agenda .scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 1rem; }
+th { text-align: left; background: var(--ink); color: var(--paper); font-weight: 700; padding: 12px 18px; white-space: nowrap; }
+td { padding: 12px 18px; border-bottom: 1.5px solid var(--ink); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td.t { font-family: var(--font-mono); font-weight: 400; white-space: nowrap; }
+td .mono { font-size: 0.88rem; }
+.tag-h { display: inline-block; font-size: 0.82rem; font-weight: 500; padding: 1px 10px; border: 1.5px solid var(--ink); border-radius: 99px; background: var(--p-green); }
+.tag-d { background: var(--p-yellow); }
+
+/* labs */
+.labs { display: grid; gap: 22px; }
+.lab { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 26px; padding: 28px; }
+.lab .l { display: grid; gap: 12px; align-content: start; }
+.lab .r { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.lab .top2 { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.lab .big { width: 56px; height: 56px; border-radius: 50%; border: var(--line); display: grid; place-items: center; font-family: var(--font-mono); font-size: 1.5rem; font-weight: 300; }
+.lab:nth-child(1) .big { background: var(--h-blue); } .lab:nth-child(2) .big { background: var(--h-green); } .lab:nth-child(3) .big { background: var(--h-pink); } .lab:nth-child(4) .big { background: var(--h-yellow); } .lab:nth-child(5) .big { background: var(--p-blue); }
+.meta { font-family: var(--font-mono); font-weight: 300; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 6px; }
+.meta span { border: 1.5px solid var(--ink); border-radius: 99px; padding: 1px 10px; background: var(--paper); }
+.lab ul, .lab ol { margin: 0; padding-left: 1.2em; display: grid; gap: 5px; }
+.stop { border: var(--line); border-radius: 14px; padding: 8px 14px; background: var(--p-red); font-size: 0.95rem; }
+@media (max-width: 860px) { .lab { grid-template-columns: 1fr; padding: 22px; } }
+.mini { font-size: 0.95rem; }
+.mini th { padding: 8px 12px; } .mini td { padding: 8px 12px; }
+
+/* quota */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.two .card { padding: 26px; display: grid; gap: 10px; align-content: start; }
+.two .card:nth-child(1) { background: var(--p-blue); } .two .card:nth-child(2) { background: var(--p-green); }
+@media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+
+/* faq */
+.faq { display: grid; gap: 12px; }
+details { background: var(--white); border: var(--line); border-radius: 22px; }
+summary { cursor: pointer; list-style: none; padding: 16px 56px 16px 22px; font-weight: 700; position: relative; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: var(--line); display: grid; place-items: center; font-family: var(--font-mono); font-weight: 400; background: var(--h-yellow); line-height: 1; padding-bottom: 2px; }
+details[open] summary::after { content: "\2212"; background: var(--h-green); }
+details .ans { padding: 0 22px 20px; display: grid; gap: 10px; }
+details .ans p { max-width: 70ch; }
+
+/* closing */
+.close { background: var(--p-blue); border: var(--line); border-radius: var(--r); padding: clamp(28px, 5vw, 56px); display: grid; gap: 24px; position: relative; overflow: hidden; }
+.close q { quotes: none; font-size: clamp(1.7rem, 4vw, 2.8rem); font-weight: 500; line-height: 1.2; max-width: 22ch; display: block; }
+.close q b { font-weight: 700; }
+.links { display: flex; flex-wrap: wrap; gap: 12px; }
+.hw { display: grid; gap: 8px; margin: 0; padding-left: 1.2em; }
+footer { padding-top: 40px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; font-size: 0.95rem; color: var(--muted); }
+footer a { color: var(--ink); }
+.skip { position: absolute; left: -999px; } .skip:focus { left: 16px; top: 8px; background: var(--white); padding: 6px 12px; z-index: 40; }
+</style>
+</head>
+<body>
+<a class="skip" href="#setup">Skip to setup</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="DevFest 2026 SDD Workshop, top of page"><span class="br" aria-hidden="true">{</span>DevFest<span class="br" aria-hidden="true">}</span><small>SDD workshop</small></a>
+    <nav class="nav" aria-label="Page sections">
+      <a href="#setup">Setup</a><a href="#agenda">Agenda</a><a href="#labs">Labs</a><a href="#help">Stuck?</a>
+      <a class="cta" href="https://github.com/techpeerPat/2026-DevFest-SDD-Workshop" target="_blank" rel="noopener">Open the repo</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<!-- HERO -->
+<div class="wrap hero">
+  <div class="tab"><span class="br" aria-hidden="true">{</span>DevFest<span class="br" aria-hidden="true">}</span><small>Hands-on workshop</small></div>
+  <div class="card hero-card">
+    <div>
+      <p class="eyebrow">Google DevFest ATL 2026 · 90 minutes</p>
+      <h1 style="margin-top:14px">Spec first. <span>Then agents.</span></h1>
+      <p class="lede">Build a multi-agent support-triage team with Google ADK on your own laptop. No code gets written until the design passes a gate.</p>
+      <div class="btns">
+        <a class="btn primary" href="#setup">Start setup</a>
+        <a class="btn" href="#labs">Jump to the labs</a>
+      </div>
+      <div class="chips"><span class="chip">$0, free tiers only</span><span class="chip">Runs on localhost</span><span class="chip">Nothing deployed</span><span class="chip">Google ADK</span></div>
+    </div>
+    <div class="art" role="img" aria-label="An elephant with a goldfish bowl floating above it: the elephant never forgets the design, the goldfish reads it fresh.">
+      <svg viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="62" cy="258" r="9" fill="#FFFFFF" stroke="#1E1E1E" stroke-width="3"/>
+        <circle cx="388" cy="40" r="9" fill="#FFD427" stroke="#1E1E1E" stroke-width="3"/>
+        <!-- bowl -->
+        <circle cx="105" cy="92" r="66" fill="#FFFFFF" stroke="#1E1E1E" stroke-width="4"/>
+        <path d="M45 98 Q105 128 165 98" fill="none" stroke="#57CAFF" stroke-width="6" stroke-linecap="round"/>
+        <ellipse cx="100" cy="86" rx="28" ry="19" fill="#FFD427" stroke="#1E1E1E" stroke-width="4"/>
+        <path d="M126 86 L152 68 L152 104 Z" fill="#FFD427" stroke="#1E1E1E" stroke-width="4" stroke-linejoin="round"/>
+        <circle cx="86" cy="80" r="4.5" fill="#1E1E1E"/>
+        <circle cx="64" cy="48" r="6" fill="#FFFFFF" stroke="#1E1E1E" stroke-width="3"/>
+        <circle cx="80" cy="30" r="4" fill="#FFFFFF" stroke="#1E1E1E" stroke-width="3"/>
+        <!-- elephant legs -->
+        <rect x="108" y="238" width="38" height="64" rx="14" fill="#C3ECF6" stroke="#1E1E1E" stroke-width="4"/>
+        <rect x="196" y="238" width="38" height="64" rx="14" fill="#C3ECF6" stroke="#1E1E1E" stroke-width="4"/>
+        <!-- trunk -->
+        <path d="M322 214 Q362 220 356 262 Q352 292 326 286" fill="none" stroke="#1E1E1E" stroke-width="40" stroke-linecap="round"/>
+        <path d="M322 214 Q362 220 356 262 Q352 292 326 286" fill="none" stroke="#C3ECF6" stroke-width="30" stroke-linecap="round"/>
+        <!-- body -->
+        <ellipse cx="190" cy="216" rx="112" ry="76" fill="#C3ECF6" stroke="#1E1E1E" stroke-width="4"/>
+        <!-- head -->
+        <circle cx="290" cy="186" r="62" fill="#C3ECF6" stroke="#1E1E1E" stroke-width="4"/>
+        <!-- ear -->
+        <ellipse cx="246" cy="190" rx="38" ry="54" fill="#F8D8D8" stroke="#1E1E1E" stroke-width="4"/>
+        <!-- eye and tusk -->
+        <circle cx="304" cy="172" r="6" fill="#1E1E1E"/>
+        <path d="M318 224 Q344 236 342 256" fill="none" stroke="#1E1E1E" stroke-width="12" stroke-linecap="round"/>
+        <path d="M318 224 Q344 236 342 256" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+        <path d="M262 126 Q282 98 312 118" fill="none" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round"/>
+        <!-- tail -->
+        <path d="M80 214 Q58 222 62 250" fill="none" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="62" cy="254" r="6" fill="#1E1E1E"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- AT A GLANCE -->
+<section id="glance">
+  <div class="head"><div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h2>What you leave with</h2><p>The workshop is a discipline that happens to produce an ADK app. Model calls still go to the free Gemini API over the internet; the agents, tools, data and chat UI all run on your machine.</p></div>
+  <div class="trio">
+    <div class="card"><p class="eyebrow">One</p><h3>A gated design doc</h3><p>A written spec that a stranger could build from, checked by a reader with no memory before any code exists.</p></div>
+    <div class="card"><p class="eyebrow">Two</p><h3>A running agent team</h3><p>A router and three specialists in Google ADK, served at localhost:8000 with a trace of every handoff.</p></div>
+    <div class="card"><p class="eyebrow">Three</p><h3>A loop you can reuse</h3><p>Grow, teach, gate, implement, review. Seven skills in all, five of them hands-on today.</p></div>
+  </div>
+  <div class="card arch" role="img" aria-label="Architecture: triage_router sends customer messages to billing_agent, technical_agent or escalation_agent, which read customers.json and kb.json and write tickets.jsonl.">
+    <p class="eyebrow">What you build</p>
+    <div class="router"><b class="mono">triage_router</b><span>Customer message in. Routes only, never answers.</span></div>
+    <svg class="lines" viewBox="0 0 640 28" aria-hidden="true"><g stroke="#1E1E1E" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M320 0 V10 M107 10 H533 M107 10 V28 M320 10 V28 M533 10 V28"/></g></svg>
+    <div class="row">
+      <div class="pill y"><b>billing_agent</b><small>lookup_customer, check_invoice</small></div>
+      <div class="pill p"><b>technical_agent</b><small>search_kb</small></div>
+      <div class="pill g"><b>escalation_agent</b><small>create_ticket</small></div>
+    </div>
+    <div class="data"><span class="pill k">customers.json · kb.json</span><span class="pill k">tickets.jsonl</span></div>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section id="setup">
+  <div class="head"><div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h2>Set up in four steps</h2><p>About 10 minutes, before the day. You need Python 3.11 or newer and git. Pick your system and coding agent once; every command below follows your choice.</p></div>
+  <div class="toolbar">
+    <div><span class="tool-label">System</span><span class="seg" role="group" aria-label="Choose your system"><button type="button" data-set-os="mac" aria-pressed="true">macOS or Linux</button><button type="button" data-set-os="win" aria-pressed="false">Windows</button></span></div>
+    <div><span class="tool-label">Agent</span><span class="seg" role="group" aria-label="Choose your coding agent"><button type="button" data-set-agent="agy" aria-pressed="true">Antigravity (agy)</button><button type="button" data-set-agent="claude" aria-pressed="false">Claude Code</button></span></div>
+  </div>
+  <div class="steps">
+    <article class="card step">
+      <div class="num" aria-hidden="true">1</div>
+      <div class="body">
+        <h3>Get the kit <span class="time">3 min</span></h3>
+        <p>Clone the public workshop repo into a folder called <code>triage-workshop</code>, then make a virtual environment and install the packages. That one <code>pip install</code> line installs Google ADK (<code>google-adk</code>, version pinned) and <code>pytest</code>, so there is no separate ADK install. The answer key lives on a separate branch, so you will not see it.</p>
+        <div class="code os-mac"><span class="tag">Terminal</span><button class="cp" type="button">Copy</button><pre>git clone https://github.com/techpeerPat/2026-DevFest-SDD-Workshop.git triage-workshop
+cd triage-workshop
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env</pre></div>
+        <div class="code os-win"><span class="tag">PowerShell</span><button class="cp" type="button">Copy</button><pre>git clone https://github.com/techpeerPat/2026-DevFest-SDD-Workshop.git triage-workshop
+cd triage-workshop
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env</pre></div>
+      </div>
+    </article>
+
+    <article class="card step">
+      <div class="num" aria-hidden="true">2</div>
+      <div class="body">
+        <h3>Get a free Gemini API key <span class="time">2 min</span></h3>
+        <ol>
+          <li>Open <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a> and sign in with a personal Google account. On the first visit, accept the terms and confirm your region.</li>
+          <li>Click <b>Get API key</b> in the left sidebar, or go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a>.</li>
+          <li>Click <b>Create API key</b>, then choose <b>Create key in new project</b>.</li>
+          <li>Copy the key. It starts with <code>AIza</code>.</li>
+          <li>Open <code>.env</code> in the project folder, paste the key after <code>GOOGLE_API_KEY=</code>, and save.</li>
+        </ol>
+        <div class="code"><span class="tag">.env</span><button class="cp" type="button">Copy</button><pre>GOOGLE_API_KEY=AIza...your-key-here
+GOOGLE_GENAI_USE_VERTEXAI=FALSE
+WORKSHOP_MODEL=gemini-3.5-flash-lite</pre></div>
+        <div class="note red"><b>Keep it private.</b> Never commit or share the key. <code>.env</code> is already in <code>.gitignore</code>. No credit card is needed. Work or school Google accounts can be restricted, so use a personal one. Screens change; if a button is named differently, look for "API keys".</div>
+      </div>
+    </article>
+
+    <article class="card step">
+      <div class="num" aria-hidden="true">3</div>
+      <div class="body">
+        <h3>Install the coding agent and the skills <span class="time">5 min</span></h3>
+        <div class="ag-agy" style="display:grid;gap:14px">
+          <p>Install the Antigravity CLI, open a <b>new terminal</b>, re-activate your venv, then run <code>agy</code> once and finish the browser sign-in with your Google account.</p>
+          <div class="code os-mac"><span class="tag">Terminal</span><button class="cp" type="button">Copy</button><pre>curl -fsSL https://antigravity.google/cli/install.sh | bash
+# open a NEW terminal, activate the venv again, then:
+agy --version
+python install_skills.py</pre></div>
+          <div class="code os-win"><span class="tag">PowerShell</span><button class="cp" type="button">Copy</button><pre>irm https://antigravity.google/cli/install.ps1 | iex
+# open a NEW terminal, activate the venv again, then:
+agy --version
+python install_skills.py</pre></div>
+        </div>
+        <div class="ag-claude" style="display:grid;gap:14px">
+          <p>Already use Claude Code? Skip the Antigravity install. This puts the skills where Claude Code looks for them.</p>
+          <div class="code"><span class="tag">Terminal</span><button class="cp" type="button">Copy</button><pre>python install_skills.py --agent claude</pre></div>
+        </div>
+        <p><code>install_skills.py</code> downloads <a href="https://github.com/techpeerPat/elephant-goldfish-skills" target="_blank" rel="noopener">elephant-goldfish-skills</a> and copies the seven skills into <span class="ag-agy"><code>.agents/skills/</code></span><span class="ag-claude"><code>.claude/skills/</code></span> inside this project only, never globally.</p>
+        <div class="note green"><b>Check it worked.</b> Start <span class="ag-agy"><code>agy</code></span><span class="ag-claude">Claude Code</span> from the project folder and type <code>/ele</code>. You should see <code>/elephant-grow</code> and <code>/elephant-teach</code>. Choose <b>one</b> agent and stay on it.</div>
+        <div class="note blue ag-agy"><b>Which Google CLI?</b> Use <code>agy</code>. Gemini CLI stopped serving free and personal accounts on 18 June 2026 and was replaced by the Antigravity CLI. In <code>agy</code>, run <code>/model</code> once, pick a model, and use that same one for all five labs.</div>
+      </div>
+    </article>
+
+    <article class="card step">
+      <div class="num" aria-hidden="true">4</div>
+      <div class="body">
+        <h3>Run the preflight <span class="time">1 min</span></h3>
+        <p>One command checks Python, ADK, your coding agent, git, the seven skills, your key, and makes a single tiny Gemini call.</p>
+        <div class="code"><span class="tag">Terminal</span><button class="cp" type="button">Copy</button><pre>python check_setup.py</pre></div>
+        <div class="code"><span class="tag">You want to see (abbreviated)</span><pre>[ ok ] Python 3.12
+[ ok ] google-adk
+[ ok ] coding agent on PATH
+[ ok ] 7 Elephant/Goldfish skills
+[ ok ] GOOGLE_API_KEY is set
+[ ok ] Gemini call works
+
+All set.</pre></div>
+        <div class="note">Every line must say <code>[ ok ]</code>. A <code>[FAIL]</code> line prints the fix beneath it. Still red? The tech desk opens 15 minutes before the start. Add <code>--no-model</code> to skip the one Gemini request.</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- AGENDA -->
+<section id="agenda">
+  <div class="head"><div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h2>The 90 minutes</h2><p>Every lab has a hard stop and a checkpoint file.</p></div>
+  <div class="card agenda"><div class="scroll">
+    <table>
+      <thead><tr><th>Clock</th><th>Min</th><th>Segment</th><th>Skill or tool</th></tr></thead>
+      <tbody>
+        <tr><td class="t">0:00</td><td>8</td><td>Welcome, why spec-first, preflight check</td><td>none</td></tr>
+        <tr><td class="t">0:08</td><td>10</td><td>ADK in 10 minutes (demo)</td><td><span class="mono">adk web</span></td></tr>
+        <tr><td class="t">0:18</td><td>15</td><td>Lab 1: design with no code</td><td><span class="mono">/elephant-grow</span></td></tr>
+        <tr><td class="t">0:33</td><td>10</td><td>Lab 2: write the design doc</td><td><span class="mono">/elephant-teach</span></td></tr>
+        <tr><td class="t">0:43</td><td>10</td><td>Lab 3: readiness gate in a fresh session</td><td><span class="mono">/goldfish-ready</span></td></tr>
+        <tr><td class="t">0:53</td><td>25</td><td>Lab 4: build it and run it</td><td><span class="mono">/implement-design</span></td></tr>
+        <tr><td class="t">1:18</td><td>10</td><td>Lab 5: hostile code review</td><td><span class="mono">/adversary-review</span></td></tr>
+        <tr><td class="t">1:28</td><td>2</td><td>Wrap and homework</td><td>none</td></tr>
+      </tbody>
+    </table></div></div>
+
+  <div class="head" style="margin-top:56px"><h3 style="font-size:1.7rem">Seven skills, one loop</h3><p>You run five. The facilitator demos <code>/goldfish-understand</code> and <code>/goldfish-critic</code> live; they are homework. Steps 3 to 5 only work in a fresh session, because the reader must not remember your conversation.</p></div>
+  <div class="card agenda"><div class="scroll">
+    <table>
+      <thead><tr><th>Step</th><th>Command</th><th>What it does</th><th>Today</th></tr></thead>
+      <tbody>
+        <tr><td class="t">1</td><td><span class="mono">/elephant-grow</span></td><td>No-code design discussion</td><td><span class="tag-h">Hands-on</span></td></tr>
+        <tr><td class="t">2</td><td><span class="mono">/elephant-teach</span></td><td>Writes the design document</td><td><span class="tag-h">Hands-on</span></td></tr>
+        <tr><td class="t">3</td><td><span class="mono">/goldfish-understand</span></td><td>Zero-context cold read</td><td><span class="tag-h tag-d">Demo</span></td></tr>
+        <tr><td class="t">4</td><td><span class="mono">/goldfish-critic</span></td><td>Hostile architecture review</td><td><span class="tag-h tag-d">Demo</span></td></tr>
+        <tr><td class="t">5</td><td><span class="mono">/goldfish-ready</span></td><td>Ready or not ready, before any code</td><td><span class="tag-h">Hands-on</span></td></tr>
+        <tr><td class="t">6</td><td><span class="mono">/implement-design</span></td><td>Builds only what the doc says</td><td><span class="tag-h">Hands-on</span></td></tr>
+        <tr><td class="t">7</td><td><span class="mono">/adversary-review</span></td><td>Hostile code review</td><td><span class="tag-h">Hands-on</span></td></tr>
+      </tbody>
+    </table></div></div>
+</section>
+
+<!-- ADK -->
+<section id="adk">
+  <div class="head"><div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h2>ADK in five ideas</h2><p>The ten-minute demo, so nothing in Lab 4 surprises you.</p></div>
+  <div class="two" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+    <div class="card" style="background:var(--white);padding:26px">
+      <ol style="margin:0;padding-left:1.3em;display:grid;gap:10px">
+        <li><b>An agent is a name, a model, an instruction</b> and optional tools.</li>
+        <li><b>A tool is a plain Python function.</b> ADK reads its docstring to tell the model how to call it.</li>
+        <li><b><code>sub_agents=[...]</code> makes a team.</b> Each child's <code>description</code> is its routing rule.</li>
+        <li><b>The package exposes <code>root_agent</code></b> from <code>agent.py</code>.</li>
+        <li><b><code>adk web</code> serves a chat UI</b> at localhost:8000 and traces every handoff and tool call.</li>
+      </ol>
+    </div>
+    <div class="code"><span class="tag">support_triage/agent.py (shape)</span><button class="cp" type="button">Copy</button><pre>from google.adk.agents import Agent
+
+billing_agent = Agent(
+    name="billing_agent",
+    model="gemini-3.5-flash-lite",
+    description="Handles invoice and charge questions.",
+    instruction="Look the customer up, then call check_invoice.",
+    tools=[check_invoice],
+)
+
+root_agent = Agent(
+    name="triage_router",
+    model="gemini-3.5-flash-lite",
+    description="Routes support messages.",
+    instruction="Do not answer yourself. Transfer to the right specialist.",
+    sub_agents=[billing_agent],
+)</pre></div>
+  </div>
+</section>
+
+<!-- LABS -->
+<section id="labs">
+  <div class="head"><div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h2>Five timed labs</h2><p>Every lab starts in the <code>triage-workshop</code> folder. Type each prompt into your coding agent. The rule for the whole session: no code until the design passes the gate.</p></div>
+  <div class="labs">
+
+    <article class="card lab">
+      <div class="l">
+        <div class="top2"><div class="big" aria-hidden="true">1</div><h3>Design with no code</h3></div>
+        <div class="meta"><span>0:18</span><span>15 min</span><span>/elephant-grow</span></div>
+        <p>Leave with decisions, not code. The skill refuses to write code and challenges your assumptions. Settle these five things before you stop:</p>
+        <ul><li><b>Routing:</b> which messages go where, and what happens when one fits two.</li><li><b>Tool contracts:</b> inputs, outputs and the error case for each of four tools.</li><li><b>Severity rules</b> for tickets.</li><li><b>Out of scope:</b> at least two things you will not build.</li><li><b>Success checks:</b> three messages and the exact routing you expect.</li></ul>
+      </div>
+      <div class="r">
+        <div class="code wrapme"><span class="tag">Prompt</span><button class="cp" type="button">Copy</button><pre>/elephant-grow I want a local-only customer support triage system built with Google ADK (the google-adk package, already installed) in Python. A coordinator agent named triage_router routes each message to a billing, technical or escalation specialist, using ADK sub_agents. The code lives in a package called support_triage/ in the project root and exposes root_agent from agent.py, so it runs with adk web. Data is in data/customers.json and data/kb.json, tickets go to a local file, and nothing is deployed. Ask at most 5 questions at a time. Challenge my routing rules, my tool inputs and outputs, and how we will know it works.</pre></div>
+        <div class="stop"><b>Hard stop 0:33.</b> Not finished? Go to Lab 2 with the five bullets you have.</div>
+      </div>
+    </article>
+
+    <article class="card lab">
+      <div class="l">
+        <div class="top2"><div class="big" aria-hidden="true">2</div><h3>Write the design doc</h3></div>
+        <div class="meta"><span>0:33</span><span>10 min</span><span>/elephant-teach</span></div>
+        <p>Turn the conversation into <code>docs/DESIGN.md</code>. Stay in the <b>same session</b> so the skill has the discussion to draw from. The file needs five sections:</p>
+        <ul><li>Problem</li><li>Technical Plan</li><li>Alternatives</li><li>Detailed Implementation</li><li>Evaluation Criteria</li></ul>
+        <p class="mini">Open Questions is optional.</p>
+      </div>
+      <div class="r">
+        <div class="code wrapme"><span class="tag">Prompt</span><button class="cp" type="button">Copy</button><pre>/elephant-teach Write the design document to docs/DESIGN.md from our discussion. In Detailed Implementation, list every file to create or change, including support_triage/__init__.py (imports agent), support_triage/agent.py (Google ADK Agent specialists plus root_agent with sub_agents) and tests/test_tools.py.</pre></div>
+        <div class="note"><b>Check it yourself.</b> Detailed Implementation lists every file to create, including <code>support_triage/__init__.py</code> and <code>support_triage/agent.py</code>, and that <code>agent.py</code> defines a <code>root_agent</code> with <code>sub_agents</code> in Google ADK. If not, add it before Lab 3. Every Evaluation Criterion is something a person or a test can check, not an adjective. Then commit it.</div>
+        <div class="stop"><b>Hard stop 0:43.</b> No file? Copy <code>checkpoints/DESIGN.md</code> to <code>docs/DESIGN.md</code>.</div>
+      </div>
+    </article>
+
+    <article class="card lab">
+      <div class="l">
+        <div class="top2"><div class="big" aria-hidden="true">3</div><h3>The readiness gate</h3></div>
+        <div class="meta"><span>0:43</span><span>10 min</span><span>/goldfish-ready</span></div>
+        <p>Could a reader with no memory of your conversation build this correctly? The facilitator first demos the cold read and the hostile critic on a volunteer's doc.</p>
+        <ol><li>Open a <b>new terminal tab</b>, activate the venv, <code>cd</code> into the project and start a fresh agent session. Do not reuse the Lab 1 and 2 session, and do not use <code>/clear</code>.</li><li>Run the gate.</li><li>If it says <b>Not ready</b>, fix the doc in your original session and run the gate once more. One loop only.</li></ol>
+      </div>
+      <div class="r">
+        <div class="code"><span class="tag">Prompt (fresh session)</span><button class="cp" type="button">Copy</button><pre>/goldfish-ready docs/DESIGN.md</pre></div>
+        <div class="note green"><b>What to notice.</b> Every gap it lists is a bug you would have found an hour into coding.</div>
+        <div class="stop"><b>Hard stop 0:53.</b> No Ready verdict? Carry on; the facilitator explains the gate on screen.</div>
+      </div>
+    </article>
+
+    <article class="card lab">
+      <div class="l">
+        <div class="top2"><div class="big" aria-hidden="true">4</div><h3>Build it and run it</h3></div>
+        <div class="meta"><span>0:53</span><span>25 min</span><span>/implement-design</span></div>
+        <p>A running multi-agent app that matches the document and nothing else.</p>
+        <ol><li>Run the build prompt.</li><li>Run the offline tests the agent wrote. No API key needed.</li><li>From the <b>project root</b> (the folder that contains <code>support_triage/</code>), start the UI and open <code>localhost:8000</code>. Pick <code>support_triage</code> at the top left.</li><li>Send the three messages below, a few seconds apart, and open the trace for each.</li><li>Commit.</li></ol>
+        <div class="note red"><b>The spec-driven rule.</b> If something is wrong, do not ask the agent to "just fix it" in chat. Decide whether the document or the code was wrong. Document wrong: edit it and re-run <code>/implement-design</code>. Code ignored the document: say so and have it conform.</div>
+      </div>
+      <div class="r">
+        <div class="code wrapme"><span class="tag">Prompt, then terminal</span><button class="cp" type="button">Copy</button><pre>/implement-design docs/DESIGN.md Build with Google ADK (google-adk is already installed in the venv). Create only the files the document lists. Before you finish, run python -m pytest tests -q and show the result.
+
+# then, in your terminal:
+python -m pytest tests -q
+adk web</pre></div>
+        <div class="card" style="border-radius:18px;overflow:hidden"><div style="overflow-x:auto"><table class="mini">
+          <thead><tr><th>Message</th><th>Expected route</th></tr></thead>
+          <tbody>
+            <tr><td>I was charged twice, my email is maya@example.com</td><td><span class="mono">billing_agent</span>, overcharge of 29</td></tr>
+            <tr><td>My app crashes when I launch it</td><td><span class="mono">technical_agent</span>, crash article</td></tr>
+            <tr><td>Your whole service is down and we lost data</td><td><span class="mono">escalation_agent</span>, ticket id in <code>tickets/tickets.jsonl</code></td></tr>
+          </tbody></table></div></div>
+        <div class="stop"><b>Hard stop 1:18.</b> Not running? Pair with a neighbour whose app runs and send your messages together.</div>
+      </div>
+    </article>
+
+    <article class="card lab">
+      <div class="l">
+        <div class="top2"><div class="big" aria-hidden="true">5</div><h3>Hostile review</h3></div>
+        <div class="meta"><span>1:18</span><span>10 min</span><span>/adversary-review</span></div>
+        <p>See what a hostile reviewer finds in code that already "works". Run it in a fresh session.</p>
+        <ol><li>Run the review on your code and tests.</li><li>It returns numbered findings and ends <b>APPROVED</b> or blocked. You will not reach APPROVED in ten minutes. That is fine.</li><li>Fix the <b>two</b> findings you think are worst.</li><li>Log the rest, one sentence each, under Open Questions in <code>docs/DESIGN.md</code>.</li></ol>
+      </div>
+      <div class="r">
+        <div class="code"><span class="tag">Prompt (fresh session)</span><button class="cp" type="button">Copy</button><pre>/adversary-review support_triage/ tests/</pre></div>
+        <div class="note blue"><b>Wrap, 1:28.</b> What did the document catch that the code never would have?</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- STUCK -->
+<section id="help">
+  <div class="head"><div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h2>Stuck? Start here</h2><p>Behind at a hard stop is normal. Use the checkpoint and keep moving.</p></div>
+  <div class="card agenda" style="margin-bottom:28px"><div class="scroll">
+    <table>
+      <thead><tr><th>At</th><th>If you have not</th><th>Do this</th></tr></thead>
+      <tbody>
+        <tr><td class="t">0:33</td><td>Finished the design discussion</td><td>Go to Lab 2 with your five bullets</td></tr>
+        <tr><td class="t">0:43</td><td>Produced <code>docs/DESIGN.md</code></td><td>Copy <code>checkpoints/DESIGN.md</code> to <code>docs/DESIGN.md</code></td></tr>
+        <tr><td class="t">0:53</td><td>Seen "Ready"</td><td>Carry on; we discuss the gate on screen</td></tr>
+        <tr><td class="t">1:18</td><td>A running app</td><td>Pair with a neighbour whose app runs</td></tr>
+      </tbody>
+    </table></div></div>
+
+  <div class="two" style="margin-bottom:28px">
+    <div class="card"><p class="eyebrow">Budget one</p><h3>Your coding agent</h3><p><code>agy</code> signs in with your Google account and uses that account's Antigravity free allowance. It is thin, and published numbers disagree. Out of it? Take the checkpoint for that lab and follow along on screen.</p></div>
+    <div class="card"><p class="eyebrow">Budget two</p><h3>Your ADK app</h3><p>The key in <code>.env</code> is used by the agents you build, and counts against that Google project's Gemini API free tier. Send messages a few seconds apart. See live limits at <a href="https://aistudio.google.com/rate-limit" target="_blank" rel="noopener">aistudio.google.com/rate-limit</a>.</p></div>
+  </div>
+
+  <div class="faq">
+    <details><summary>agy: command not found</summary><div class="ans"><p>The installer put the binary where your shell has not looked yet. Open a new terminal. If it is still missing, add <code>~/.local/bin</code> (macOS, Linux) or <code>%LOCALAPPDATA%\Antigravity</code> (Windows) to your PATH.</p></div></details>
+    <details><summary>Typing /elephant-grow does nothing</summary><div class="ans"><p>The skills are not in the folder your agent was started from. Run <code>ls .agents/skills</code> (or <code>.claude/skills</code>), expect seven folders, then restart the agent from the project root. If they are missing, run <code>python install_skills.py</code>.</p></div></details>
+    <details><summary>adk web shows no agents</summary><div class="ans"><p>You started it from inside <code>support_triage/</code>. Run <code>cd ..</code> to the project root and start it again.</p></div></details>
+    <details><summary>ModuleNotFoundError: google.adk</summary><div class="ans"><p>Your virtual environment is not active. Run <code>source .venv/bin/activate</code> (macOS, Linux) or <code>.venv\Scripts\Activate.ps1</code> (Windows).</p></div></details>
+    <details><summary>429 RESOURCE_EXHAUSTED from Gemini</summary><div class="ans"><p>You hit the per-minute or per-day free quota. Wait a minute and send fewer messages. If it says daily, change <code>WORKSHOP_MODEL</code> in <code>.env</code> to another model that AI Studio shows with quota.</p><p>A 429 with "limit: 0" means that model has no free quota for your key. Use a model your AI Studio rate-limit page lists as available.</p></div></details>
+    <details><summary>404 model not found</summary><div class="ans"><p>The model name in <code>.env</code> has a typo or has been retired. Check the model list in AI Studio and fix <code>WORKSHOP_MODEL</code>.</p></div></details>
+    <details><summary>403 PERMISSION_DENIED, project denied access</summary><div class="ans"><p>Google flagged or restricted the project. Create a key in a different project or account. The tech desk keeps spare keys.</p></div></details>
+    <details><summary>Coding agent stalls, queues or says quota used</summary><div class="ans"><p>Your free Antigravity allowance is spent. Switch to the checkpoint for that lab, pair with a neighbour, and do not retry in a loop.</p></div></details>
+    <details><summary>My laptop blocks the install script or Google sign-in</summary><div class="ans"><p>A corporate security policy is the usual cause. Pair with a neighbour for the day, or ask your IT team ahead of time.</p></div></details>
+  </div>
+</section>
+
+<!-- CLOSE -->
+<section id="after">
+  <div class="close">
+    <p class="eyebrow">Wrap, 1:28</p>
+    <q>What did the <b>document catch</b> that the code never would have?</q>
+    <div>
+      <h3 style="margin-bottom:10px">Homework</h3>
+      <ul class="hw">
+        <li>Run <code>/goldfish-understand</code> and <code>/goldfish-critic</code> on your own <code>docs/DESIGN.md</code>.</li>
+        <li>Add a fourth specialist, for example <code>account_agent</code>, using all seven steps.</li>
+        <li>Compare your <code>support_triage/</code> with the <code>answer-key</code> branch of the repo.</li>
+      </ul>
+    </div>
+    <div class="links">
+      <a class="btn primary" href="https://github.com/techpeerPat/2026-DevFest-SDD-Workshop" target="_blank" rel="noopener">Workshop repo</a>
+      <a class="btn" href="https://github.com/techpeerPat/elephant-goldfish-skills" target="_blank" rel="noopener">Skills repo</a>
+      <a class="btn" href="https://github.com/techpeerPat/2026-DevFest-SDD-Workshop/tree/answer-key" target="_blank" rel="noopener">Answer key</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Google DevFest ATL 2026 · Spec Driven Development with the Elephant and Goldfish model · MIT licence</span>
+  <span>Free-tier limits change. Check the live numbers before the day.</span>
+</footer>
+</div>
+</main>
+
+<script>
+(function () {
+  var body = document.body;
+  body.setAttribute('data-os', /Win/i.test(navigator.platform || '') ? 'win' : 'mac');
+  body.setAttribute('data-agent', 'agy');
+  function sync() {
+    document.querySelectorAll('[data-set-os]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-set-os') === body.getAttribute('data-os'))); });
+    document.querySelectorAll('[data-set-agent]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-set-agent') === body.getAttribute('data-agent'))); });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('button');
+    if (!t) return;
+    if (t.hasAttribute('data-set-os')) { body.setAttribute('data-os', t.getAttribute('data-set-os')); sync(); }
+    else if (t.hasAttribute('data-set-agent')) { body.setAttribute('data-agent', t.getAttribute('data-set-agent')); sync(); }
+    else if (t.classList.contains('cp')) {
+      var pre = t.parentElement.querySelector('pre');
+      var text = pre ? pre.innerText : '';
+      var done = function () { t.textContent = 'Copied'; setTimeout(function () { t.textContent = 'Copy'; }, 1500); };
+      var fallback = function () {
+        var r = document.createRange(); r.selectNodeContents(pre);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        t.textContent = 'Press Ctrl+C'; setTimeout(function () { t.textContent = 'Copy'; }, 2500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done, fallback); } else { fallback(); }
+    }
+  });
+  sync();
+})();
+</script>
+</body>
+</html>
